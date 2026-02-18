@@ -1,6 +1,21 @@
 .open fittrackpro.db
 .mode column
 
+DROP TABLE IF EXISTS locations;
+DROP TABLE IF EXISTS members;
+DROP TABLE IF EXISTS staff;
+DROP TABLE IF EXISTS equipment;
+DROP TABLE IF EXISTS classes;
+DROP TABLE IF EXISTS class_schedule;
+DROP TABLE IF EXISTS memberships;
+DROP TABLE IF EXISTS attendance;
+DROP TABLE IF EXISTS class_attendance;
+DROP TABLE IF EXISTS payments;
+DROP TABLE IF EXISTS personal_training_sessions;
+DROP TABLE IF EXISTS member_health_metrics;
+DROP TABLE IF EXISTS equipment_maintenance_logs;
+
+
 PRAGMA foreign_keys = ON;
 
 -- locations table
@@ -48,7 +63,7 @@ CREATE TABLE staff (
     hire_date DATE NOT NULL
         CHECK (hire_date = date(hire_date)),
     location_id INTEGER NOT NULL,
-    FOREIGN KEY (location_id) REFERENCES locations(location_id)
+    FOREIGN KEY (location_id) REFERENCES locations(location_id) ON DELETE CASCADE
 );
 
 -- equipment table
@@ -64,7 +79,7 @@ CREATE TABLE equipment (
     next_maintenance_date DATE NOT NULL
         CHECK (next_maintenance_date = date(next_maintenance_date)),
     location_id INTEGER NOT NULL,
-    FOREIGN KEY (location_id) REFERENCES locations(location_id)
+    FOREIGN KEY (location_id) REFERENCES locations(location_id) ON DELETE CASCADE
 );
 
 -- classes table
@@ -77,7 +92,7 @@ CREATE TABLE classes (
     duration INTEGER NOT NULL
         CHECK (duration > 0),
     location_id INTEGER NOT NULL,
-    FOREIGN KEY (location_id) REFERENCES locations(location_id)
+    FOREIGN KEY (location_id) REFERENCES locations(location_id) ON DELETE CASCADE
 );
 
 -- class_schedule table
@@ -89,8 +104,8 @@ CREATE TABLE class_schedule (
         CHECK (start_time = datetime(start_time)),
     end_time DATETIME NOT NULL
         CHECK (end_time = datetime(end_time)),
-    FOREIGN KEY (class_id) REFERENCES classes(class_id),
-    FOREIGN KEY (staff_id) REFERENCES staff(staff_id
+    FOREIGN KEY (class_id) REFERENCES classes(class_id) ON DELETE CASCADE,
+    FOREIGN KEY (staff_id) REFERENCES staff(staff_id) ON DELETE CASCADE,
     CHECK (end_time > start_time)
 );
 
@@ -105,7 +120,7 @@ CREATE TABLE memberships (
         CHECK (end_date = date(end_date)),
     status TEXT NOT NULL
         CHECK (status IN ("Active", "Inactive")),
-    FOREIGN KEY (member_id) REFERENCES members(member_id),
+    FOREIGN KEY (member_id) REFERENCES members(member_id) ON DELETE CASCADE,
     CHECK (end_date > start_date)
 );
 
@@ -118,20 +133,20 @@ CREATE TABLE attendance (
         CHECK (check_in_time = datetime(check_in_time)),
     check_out_time DATETIME
         CHECK (check_out_time = datetime(check_out_time)),
-    FOREIGN KEY (member_id) REFERENCES members(member_id),
-    FOREIGN KEY (location_id) REFERENCES locations(location_id),
+    FOREIGN KEY (member_id) REFERENCES members(member_id) ON DELETE CASCADE,
+    FOREIGN KEY (location_id) REFERENCES locations(location_id) ON DELETE CASCADE,
     CHECK (check_out_time > check_in_time)
 );
 
--- class_registrations table
+-- class_attendance table
 CREATE TABLE class_attendance (
     class_attendance_id INTEGER PRIMARY KEY,
     schedule_id INTEGER NOT NULL,
     member_id INTEGER NOT NULL,
     attendance_status TEXT NOT NULL
         CHECK (attendance_status IN ("Registered", "Attended", "Unattended")),
-    FOREIGN KEY (schedule_id) REFERENCES class_schedule(schedule_id),
-    FOREIGN KEY (member_id) REFERENCES members(member_id)
+    FOREIGN KEY (schedule_id) REFERENCES class_schedule(schedule_id) ON DELETE CASCADE,
+    FOREIGN KEY (member_id) REFERENCES members(member_id) ON DELETE CASCADE
 );
 
 -- payments table
@@ -146,7 +161,7 @@ CREATE TABLE payments (
         CHECK (payment_method IN ("Credit Card", "Bank Transfer", "PayPal")),
     payment_type TEXT NOT NULL
         CHECK (payment_type IN ("Monthly membership fee", "Day pass")),
-    FOREIGN KEY (member_id) REFERENCES members(member_id)
+    FOREIGN KEY (member_id) REFERENCES members(member_id) ON DELETE CASCADE
 );
 
 -- personal_training_sessions table
@@ -161,8 +176,8 @@ CREATE TABLE personal_training_sessions (
     end_time TEXT NOT NULL
         CHECK (end_time GLOB "[0-2][0-9]:[0-5][0-9]-[0-2][0-9]:[0-5][0-9]"),
     notes TEXT,
-    FOREIGN KEY (member_id) REFERENCES members(member_id),
-    FOREIGN KEY (staff_id) REFERENCES staff(staff_id)
+    FOREIGN KEY (member_id) REFERENCES members(member_id) ON DELETE CASCADE,
+    FOREIGN KEY (staff_id) REFERENCES staff(staff_id) ON DELETE CASCADE,
     CHECK (end_time > start_time)
 );
 
@@ -180,7 +195,7 @@ CREATE TABLE member_health_metrics (
         CHECK (muscle_mass >= 0),
     bmi REAL NOT NULL
         CHECK (bmi > 0),
-    FOREIGN KEY (member_id) REFERENCES members(member_id)
+    FOREIGN KEY (member_id) REFERENCES members(member_id) ON DELETE CASCADE
 );
 
 -- equipment_maintenance_logs table
@@ -191,7 +206,7 @@ CREATE TABLE equipment_maintenance_logs (
         CHECK (maintenance_date = date(maintenance_date)),
     description TEXT NOT NULL,
     staff_id INTEGER NOT NULL,
-    FOREIGN KEY (equipment_id) REFERENCES equipment(equipment_id),
-    FOREIGN KEY (staff_id) REFERENCES staff(staff_id)
+    FOREIGN KEY (equipment_id) REFERENCES equipment(equipment_id) ON DELETE CASCADE,
+    FOREIGN KEY (staff_id) REFERENCES staff(staff_id) ON DELETE CASCADE
 );
 
