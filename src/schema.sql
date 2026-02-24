@@ -19,12 +19,14 @@ DROP TABLE IF EXISTS equipment_maintenance_logs;
 PRAGMA foreign_keys = ON;
 
 -- locations table
-CRETE TABLE locations (
+CREATE TABLE locations (
     location_id INTEGER PRIMARY KEY,
     name TEXT NOT NULL,
     address TEXT NOT NULL,
     phone_number TEXT NOT NULL
-        CHECK (phone_number GLOB "07[0-9][0-9][0-9] [0-9][0-9][0-9][0-9][0-9][0-9]"),
+        CHECK (phone_number GLOB "0[0-9][0-9] [0-9][0-9][0-9] [0-9][0-9][0-9][0-9]"
+            OR phone_number GLOB "0[0-9][0-9][0-9] [0-9][0-9][0-9] [0-9][0-9][0-9][0-9]"
+            OR phone_number GLOB "0[0-9][0-9][0-9][0-9] [0-9][0-9][0-9][0-9][0-9][0-9]"),
     email TEXT NOT NULL
         CHECK (email LIKE "%@%.%"),
     opening_hours TEXT NOT NULL
@@ -39,14 +41,14 @@ CREATE TABLE members (
     email TEXT NOT NULL
         CHECK (email LIKE "%@%.%"),
     phone_number TEXT NOT NULL
-        CHECK (phone_number GLOB "07[0-9][0-9][0-9] [0-9][0-9][0-9][0-9][0-9][0-9]"),
+        CHECK (phone_number GLOB "0[0-9][0-9][0-9][0-9] [0-9][0-9][0-9][0-9][0-9][0-9]"),
     date_of_birth DATE NOT NULL
         CHECK (date_of_birth = date(date_of_birth)),
-    join_date DATE NOT NULL,
+    join_date DATE NOT NULL
         CHECK (join_date = date(join_date)),
     emergency_contact_name TEXT NOT NULL,
     emergency_contact_phone TEXT NOT NULL
-        CHECK (emergency_contact_phone GLOB "07[0-9][0-9][0-9] [0-9][0-9][0-9][0-9][0-9][0-9]")
+        CHECK (emergency_contact_phone GLOB "0[0-9][0-9][0-9][0-9] [0-9][0-9][0-9][0-9][0-9][0-9]")
 );
 
 -- staff table
@@ -57,7 +59,7 @@ CREATE TABLE staff (
     email TEXT NOT NULL
         CHECK (email LIKE "%@%.%"),
     phone_number TEXT NOT NULL
-        CHECK (phone_number GLOB "07[0-9][0-9][0-9] [0-9][0-9][0-9][0-9][0-9][0-9]"),
+        CHECK (phone_number GLOB "0[0-9][0-9][0-9][0-9] [0-9][0-9][0-9][0-9][0-9][0-9]"),
     position TEXT NOT NULL
         CHECK (position IN ("Trainer", "Manager", "Receptionist", "Maintenance")),
     hire_date DATE NOT NULL
@@ -114,10 +116,8 @@ CREATE TABLE memberships (
     membership_id INTEGER PRIMARY KEY,
     member_id INTEGER NOT NULL,
     type TEXT NOT NULL,
-    start_date DATE NOT NULL
-        CHECK (start_date = date(start_date)),
-    end_date DATE NOT NULL
-        CHECK (end_date = date(end_date)),
+    start_date DATE NOT NULL,
+    end_date DATE NOT NULL,
     status TEXT NOT NULL
         CHECK (status IN ("Active", "Inactive")),
     FOREIGN KEY (member_id) REFERENCES members(member_id) ON DELETE CASCADE,
@@ -158,7 +158,7 @@ CREATE TABLE payments (
     payment_date DATETIME NOT NULL
         CHECK (payment_date = datetime(payment_date)),
     payment_method TEXT NOT NULL
-        CHECK (payment_method IN ("Credit Card", "Bank Transfer", "PayPal")),
+        CHECK (payment_method IN ("Credit Card", "Bank Transfer", "PayPal", "Cash")),
     payment_type TEXT NOT NULL
         CHECK (payment_type IN ("Monthly membership fee", "Day pass")),
     FOREIGN KEY (member_id) REFERENCES members(member_id) ON DELETE CASCADE
@@ -172,9 +172,9 @@ CREATE TABLE personal_training_sessions (
     session_date DATE NOT NULL
         CHECK (session_date = date(session_date)),
     start_time TEXT NOT NULL
-        CHECK (start_time GLOB "[0-2][0-9]:[0-5][0-9]-[0-2][0-9]:[0-5][0-9]"),
+        CHECK (start_time GLOB "[0-2][0-9]:[0-5][0-9]:[0-5][0-9]"),
     end_time TEXT NOT NULL
-        CHECK (end_time GLOB "[0-2][0-9]:[0-5][0-9]-[0-2][0-9]:[0-5][0-9]"),
+        CHECK (end_time GLOB "[0-2][0-9]:[0-5][0-9]:[0-5][0-9]"),
     notes TEXT,
     FOREIGN KEY (member_id) REFERENCES members(member_id) ON DELETE CASCADE,
     FOREIGN KEY (staff_id) REFERENCES staff(staff_id) ON DELETE CASCADE,
@@ -198,8 +198,8 @@ CREATE TABLE member_health_metrics (
     FOREIGN KEY (member_id) REFERENCES members(member_id) ON DELETE CASCADE
 );
 
--- equipment_maintenance_logs table
-CREATE TABLE equipment_maintenance_logs (
+-- equipment_maintenance_log table
+CREATE TABLE equipment_maintenance_log (
     log_id INTEGER PRIMARY KEY,
     equipment_id INTEGER NOT NULL,
     maintenance_date DATE NOT NULL
@@ -209,4 +209,3 @@ CREATE TABLE equipment_maintenance_logs (
     FOREIGN KEY (equipment_id) REFERENCES equipment(equipment_id) ON DELETE CASCADE,
     FOREIGN KEY (staff_id) REFERENCES staff(staff_id) ON DELETE CASCADE
 );
-
