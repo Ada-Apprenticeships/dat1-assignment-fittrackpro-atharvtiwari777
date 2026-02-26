@@ -16,7 +16,6 @@ WHERE a.check_out_time IS NOT NULL
 GROUP BY ms.type;
 
 -- 5.3 
--- 5.3
 SELECT m.member_id, m.first_name, m.last_name, m.email, ms.end_date
 FROM members m
 JOIN memberships ms ON m.member_id = ms.member_id

@@ -24,7 +24,7 @@ VALUES (11, 1, '2025-02-01');
 DELETE FROM class_attendance
 WHERE schedule_id = 7 AND member_id = 3;
 
--- 4.5 - wrong
+-- 4.5
 SELECT c.class_id, c.name AS class_name, COUNT(ca.class_attendance_id) AS registration_count
 FROM classes c
 JOIN class_schedule cs ON c.class_id = cs.class_id
@@ -34,7 +34,7 @@ GROUP BY c.class_id
 ORDER BY registration_count DESC
 LIMIT 1;
 
--- 4.6 - wrong
+-- 4.6
 SELECT ROUND(AVG(class_count), 2) AS avg_classes_per_member
 FROM (
     SELECT member_id, COUNT(*) AS class_count
