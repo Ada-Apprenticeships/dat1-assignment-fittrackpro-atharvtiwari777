@@ -1,7 +1,6 @@
 .open fittrackpro.db
 .mode column
 
--- Drop tables in reverse dependency order so foreign keys don't block the drops
 DROP TABLE IF EXISTS equipment_maintenance_log;
 DROP TABLE IF EXISTS member_health_metrics;
 DROP TABLE IF EXISTS personal_training_sessions;
