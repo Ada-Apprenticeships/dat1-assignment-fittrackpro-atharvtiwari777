@@ -25,12 +25,15 @@ DELETE FROM class_attendance
 WHERE schedule_id = 7 AND member_id = 3;
 
 -- 4.5
-SELECT c.class_id, c.name AS class_name, COUNT(ca.class_attendance_id) AS registration_count
-FROM classes c
-JOIN class_schedule cs ON c.class_id = cs.class_id
-JOIN class_attendance ca ON cs.schedule_id = ca.schedule_id
+SELECT
+    c.class_id,
+    c.name AS class_name,
+    COUNT(ca.class_attendance_id) AS registration_count
+FROM class_attendance ca
+JOIN class_schedule cs ON ca.schedule_id = cs.schedule_id
+JOIN classes c ON cs.class_id = c.class_id
 WHERE ca.attendance_status = 'Registered'
-GROUP BY c.class_id
+GROUP BY c.class_id, c.name
 ORDER BY registration_count DESC
 LIMIT 1;
 
